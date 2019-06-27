@@ -1,0 +1,68 @@
+//bitwise of addition
+int bitOperationAdd(int x, int y) {
+	if (y == 0)	return x;
+	int sum = x ^ y;
+	int carry = (x & y) << 1;
+	return bitOperationAdd(sum, carry);
+}
+
+//bitwise of substraction
+int bitOperationSubstract(int x, int y) {
+	//a negative number is equil to the complement code of the corresponding positive number.
+	int sub = bitOperationAdd(~y, 1);
+	return bitOperationAdd(x, sub);
+}
+
+/*the multiplication is the sum of several addition operation, 
+in this way, it will be more compicated when the multipliers become bigger.*/
+int bitOperationMulti_temp(int x, int y) {
+	int mul1 = x, mul2 = y;
+	if (x < 0)	mul1 = bitOperationAdd(~x, 1);
+	if (y < 0)	mul2 = bitOperationAdd(~y, 1);
+
+	int res = 0;
+	int count = 0;
+	while (count < mul2) {
+		res = bitOperationAdd(res, mul1);
+		count = bitOperationAdd(count, 1);
+	}
+	if ((x ^ y)< 0)	res = bitOperationAdd(~res, 1);
+	return res;
+}
+
+// another function to achieve multiplication through bit operation.
+int bitOperationMulti(int x, int y) {
+	int mul1 = x, mul2 = y;
+	if (x < 0)	mul1 = bitOperationAdd(~x, 1);
+	if (y < 0)	mul2 = bitOperationAdd(~y, 1);
+
+	int res = 0;
+	while (mul2 > 0) {
+		if ((mul1 & 0x1) > 0)
+			res = bitOperationAdd(res, mul2);
+		mul1 >>= 1;	//for each loop, the multiplicand should be do a right shift
+		mul2 <<= 1;	//for each loop, the multiplier should be do a left shift
+	}
+	if ((x ^ y)< 0)	res = bitOperationAdd(~res, 1);
+	return res;
+}
+
+/*the division is the sum of several substraction operation,
+in this way, it will be more compicated when the multipliers become bigger.*/
+//tips: you can choose the larger path instead of one the substract the divisor to make the program faster.
+int bitOperationDiv(int x, int y) {
+	int dividend = x, divisor = y;
+	if (x < 0)	dividend = bitOperationAdd(~x, 1);
+	if (y < 0)	divisor = bitOperationAdd(~y, 1);
+
+	int quotient = 0;	//商
+	int remainder = 0;	//余数
+	while (dividend >= divisor) {
+		quotient = bitOperationAdd(quotient, 1);
+		dividend = bitOperationSubstract(dividend, divisor);
+	}
+	remainder = x > 0 ? dividend : (~dividend ,1);
+
+	if ((x ^ y)< 0)	quotient = bitOperationAdd(~quotient, 1);
+	return quotient;
+}
